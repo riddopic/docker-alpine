@@ -57,17 +57,17 @@ export TAG
 
 step=-=-=-=-=-=-=-=-=-
 
-define colorecho
-	@tput setaf 1
-	@printf "%$(tput cols)s\n"|tr ' ' '='
-	@echo $1
-	@printf "%$(tput cols)s\n"|tr ' ' '='
-	@tput sgr0
-endef
+# define colorecho
+# 	@tput setaf 1
+# 	@printf "%$(tput cols)s\n"|tr ' ' '='
+# 	@echo $1
+# 	@printf "%$(tput cols)s\n"|tr ' ' '='
+# 	@tput sgr0
+# endef
 
 # Define actual usable targets
 push: save
-	$(call colorecho,"$(step) Release $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
+	# $(call colorecho,"$(step) Release $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
 	set -e ; \
 	for registry in $(PUSH_REGISTRIES); do \
 		for tag in $(PUSH_TAGS); do \
@@ -77,7 +77,7 @@ push: save
 	done
 
 save: test
-	$(call colorecho,"$(step) Generating $(REGISTRY)/$(REPOSITORY):$(TAG) artifact $(step)")
+	# $(call colorecho,"$(step) Generating $(REGISTRY)/$(REPOSITORY):$(TAG) artifact $(step)")
 	docker save -o $(TAG)/image.tar $(REGISTRY)/$(REPOSITORY):$(TAG)
 
 test: build
@@ -88,7 +88,7 @@ test: build
 	fi
 
 .build: . $(TAG) $(DEPS)
-	$(call colorecho,"$(step) Building $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
+	# $(call colorecho,"$(step) Building $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
 	docker build -t "$(REGISTRY)/$(REPOSITORY):$(TAG)" -f "$(TAG)/Dockerfile" .
 	@docker inspect -f '{{.Id}}' $(REGISTRY)/$(REPOSITORY):$(TAG) > $(TAG)/.build
 ifeq "$(TAG)" "$(LATEST_TAG)"
@@ -98,7 +98,7 @@ endif
 build: $(TAG)/Dockerfile .build
 
 clean: stop
-	$(call colorecho,"$(step) Cleaning $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
+	# $(call colorecho,"$(step) Cleaning $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
 	@$(RM) $(TAG)/.build
 	-docker rmi "$(REPOSITORY):${TAG}"
 ifeq "$(TAG)" "$(LATEST_TAG)"
@@ -106,7 +106,7 @@ ifeq "$(TAG)" "$(LATEST_TAG)"
 endif
 
 stop:
-	$(call colorecho,"$(step) Stoping $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
+	# $(call colorecho,"$(step) Stoping $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
 	-docker stop "$(REPOSITORY):${TAG}"
 	-docker rm "$(REPOSITORY):${TAG}"
 ifeq "$(TAG)" "$(LATEST_TAG)"
@@ -117,7 +117,7 @@ endif
 # and use it for $(TAG). We prioritize Dockerfile.erb over Dockerfile if both
 # are present.
 $(TAG)/Dockerfile: Dockerfile.erb Dockerfile | $(TAG)
-	$(call colorecho,"$(step) Rendering $(REGISTRY)/$(REPOSITORY):$(TAG) Dockerfile $(step)")
+	# $(call colorecho,"$(step) Rendering $(REGISTRY)/$(REPOSITORY):$(TAG) Dockerfile $(step)")
 	set -e ;\
 	if [ -f 'Dockerfile.erb' ]; then \
 		erb "Dockerfile.erb" > "$(TAG)/Dockerfile"; \
