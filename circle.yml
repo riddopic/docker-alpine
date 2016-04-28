@@ -17,12 +17,15 @@ dependencies:
     - git remote -v
     - git branch -avv
     - docker info
+    - mkdir 3.3
+    - erb Dockerfile.erb > 3.3/Dockerfile
+    - docker build -t bluebeluga/alpine:3.3 -f 3.3/Dockerfile .
+    - docker tag bluebeluga/alpine:3.3 bluebeluga/alpine:latest
 
 test:
   override:
-    - make test TAG=3.3
     - docker images
-    - docker build -t bluebeluga/alpine:3.3 -f 3.3/Dockerfile .
+    - bats -p test/alpine-3.3.bats
 
 deployment:
   hub:
