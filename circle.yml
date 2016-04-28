@@ -9,7 +9,7 @@ dependencies:
     - "~/deps"
   pre:
     - if [[ ! -d ~/deps ]]; then mkdir -p ~/deps; fi
-    - cd deps && git clone https://github.com/sstephenson/bats.git
+    - cd ~/deps && git clone https://github.com/sstephenson/bats.git
     - sudo ~/deps/bats/install.sh /usr/local
   override:
     - docker info
