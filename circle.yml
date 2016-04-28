@@ -8,12 +8,17 @@ dependencies:
   cache_directories:
     - "~/deps"
   pre:
-    - if [[ ! -d ~/deps ]]; then mkdir -p ~/deps; fi
-    - cd ~/deps && git clone https://github.com/sstephenson/bats.git
-    - sudo ~/deps/bats/install.sh /usr/local
+    - if [[ ! -e ~/deps/bats_v0.4.0.tar.gz ]]; then mkdir -p ~/deps; curl -sSL -o ~/deps/bats_v0.4.0.tar.gz https://github.com/sstephenson/bats/archive/v0.4.0.tar.gz; fi
+    - tar -xf ~/deps/bats_v0.4.0.tar.gz
+    - sudo bats-0.4.0/install.sh /usr/local
   override:
+    - git status
+    - git branch
+    - git remote -v
+    - git branch -avv
     - docker info
 
 test:
   override:
     - make test
+    - docker images

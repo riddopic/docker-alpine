@@ -1,6 +1,8 @@
 
 # [<img src=".bluebeluga.png" height="100" width="200" style="border-radius: 50%;" alt="@fancyremarker" />](https://github.com/riddopic/docker-alpine) bluebeluga/alpine
 
+[![Circle CI](http://circle.bluebeluga.io/gh/riddopic/docker-alpine.svg?style=svg)](http://circle.bluebeluga.io/gh/riddopic/docker-alpine)
+
 Alpine Linux base image for Docker.
 
 ## Installation and Usage
