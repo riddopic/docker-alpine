@@ -55,9 +55,6 @@ export REGISTRY
 export REPOSITORY
 export TAG
 
-# list of dependancies in the build context
-DEPS = $(shell find $(TAG) -type f -print)
-
 step=-=-=-=-=-=-=-=-=-
 
 define colorecho
@@ -95,7 +92,7 @@ test: build
 	docker build -t "$(REGISTRY)/$(REPOSITORY):$(TAG)" -f "$(TAG)/Dockerfile" .
 	@docker inspect -f '{{.Id}}' $(REGISTRY)/$(REPOSITORY):$(TAG) > $(TAG)/.built
 ifeq "$(TAG)" "$(LATEST_TAG)"
-	docker tag -f "$(REGISTRY)/$(REPOSITORY):$(TAG)" "$(REGISTRY)/$(REPOSITORY):latest"
+	docker tag "$(REGISTRY)/$(REPOSITORY):$(TAG)" "$(REGISTRY)/$(REPOSITORY):latest"
 endif
 
 build: .built
@@ -137,6 +134,10 @@ Dockerfile:
 
 $(TAG):
 	mkdir -p "$(TAG)"
+
+# list of dependancies in the build context
+$(DEPS): $(TAG)
+	$(shell find $(TAG) -type f -print)
 
 .PHONY: push save test build clean stop
 .DEFAULT_GOAL := test
