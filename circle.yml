@@ -2,7 +2,7 @@
 ---
 machine:
   environment:
-    TAG: 3.3
+    TAG: 3.2
   services:
     - docker
 

@@ -87,7 +87,7 @@ test: build
 		bats test/alpine-$(TAG).bats; \
 	fi
 
-.build: $(TAG)/. $(DEPS)
+.build: . $(TAG) $(DEPS)
 	$(call colorecho,"$(step) Building $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
 	docker build -t "$(REGISTRY)/$(REPOSITORY):$(TAG)" -f "$(TAG)/Dockerfile" .
 	@docker inspect -f '{{.Id}}' $(REGISTRY)/$(REPOSITORY):$(TAG) > $(TAG)/.build
