@@ -1,6 +1,8 @@
 # encoding: UTF-8
 ---
 machine:
+  environment:
+    TAGS: "3.2 3.3 edge"
   services:
     - docker
 
