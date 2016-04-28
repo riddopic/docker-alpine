@@ -87,19 +87,19 @@ test: build
 		bats test/alpine-$(TAG).bats; \
 	fi
 
-.build_id: . $(DEPS)
+.build: $(TAG)/. $(DEPS)
 	$(call colorecho,"$(step) Building $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
 	docker build -t "$(REGISTRY)/$(REPOSITORY):$(TAG)" -f "$(TAG)/Dockerfile" .
-	@docker inspect -f '{{.Id}}' $(REGISTRY)/$(REPOSITORY):$(TAG) > $(TAG)/.build_id
+	@docker inspect -f '{{.Id}}' $(REGISTRY)/$(REPOSITORY):$(TAG) > $(TAG)/.build
 ifeq "$(TAG)" "$(LATEST_TAG)"
 	docker tag "$(REGISTRY)/$(REPOSITORY):$(TAG)" "$(REGISTRY)/$(REPOSITORY):latest"
 endif
 
-build: $(TAG)/Dockerfile .build_id
+build: $(TAG)/Dockerfile .build
 
 clean: stop
 	$(call colorecho,"$(step) Cleaning $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
-	@$(RM) $(TAG)/.build_id
+	@$(RM) $(TAG)/.build
 	-docker rmi "$(REPOSITORY):${TAG}"
 ifeq "$(TAG)" "$(LATEST_TAG)"
 	-docker rmi "$(REPOSITORY):latest"
