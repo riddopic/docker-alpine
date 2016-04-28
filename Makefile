@@ -58,8 +58,19 @@ export TAG
 # list of dependancies in the build context
 DEPS = $(shell find $(TAG) -type f -print)
 
+step=-=-=-=-=-=-=-=-=-
+
+define colorecho
+	@tput setaf 1
+	@printf "%$(tput cols)s\n"|tr ' ' '='
+	@echo $1
+	@printf "%$(tput cols)s\n"|tr ' ' '='
+	@tput sgr0
+endef
+
 # Define actual usable targets
-push: test
+push: save
+	$(call colorecho,"$(step) Release $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
 	set -e ; \
 	for registry in $(PUSH_REGISTRIES); do \
 		for tag in $(PUSH_TAGS); do \
@@ -68,13 +79,19 @@ push: test
 		done \
 	done
 
+save: test
+	$(call colorecho,"$(step) Generating $(REGISTRY)/$(REPOSITORY):$(TAG) artifact $(step)")
+	docker save -o $(TAG)/image.tar $(REGISTRY)/$(REPOSITORY):$(TAG)
+
 test: build
+	$(call colorecho,"$(step) Testing $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
 	set -e ;\
 	if [ -f "test/alpine-${TAG}.bats" ]; then \
 		bats test/alpine-$(TAG).bats; \
 	fi
 
 .built: . $(DEPS) $(TAG)/Dockerfile
+	$(call colorecho,"$(step) Building $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
 	docker build -t "$(REGISTRY)/$(REPOSITORY):$(TAG)" -f "$(TAG)/Dockerfile" .
 	@docker inspect -f '{{.Id}}' $(REGISTRY)/$(REPOSITORY):$(TAG) > $(TAG)/.built
 ifeq "$(TAG)" "$(LATEST_TAG)"
@@ -121,5 +138,5 @@ Dockerfile:
 $(TAG):
 	mkdir -p "$(TAG)"
 
-.PHONY: push test build clean stop
+.PHONY: push save test build clean stop
 .DEFAULT_GOAL := test
