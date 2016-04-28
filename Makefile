@@ -89,6 +89,7 @@ test: build
 
 .built: . $(DEPS) $(TAG)/Dockerfile
 	$(call colorecho,"$(step) Building $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
+	echo "your deps are: ${DEPS}"
 	docker build -t "$(REGISTRY)/$(REPOSITORY):$(TAG)" -f "$(TAG)/Dockerfile" .
 	@docker inspect -f '{{.Id}}' $(REGISTRY)/$(REPOSITORY):$(TAG) > $(TAG)/.built
 ifeq "$(TAG)" "$(LATEST_TAG)"
@@ -136,8 +137,7 @@ $(TAG):
 	mkdir -p "$(TAG)"
 
 # list of dependancies in the build context
-$(DEPS): $(TAG)
-	$(shell find $(TAG) -type f -print)
+DEPS = $(shell find $(TAG) -type f -print)
 
 .PHONY: push save test build clean stop
 .DEFAULT_GOAL := test
