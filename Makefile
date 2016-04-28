@@ -70,8 +70,8 @@ push: test
 
 test: build
 	set -e ;\
-	if [ -f 'test/alpine-${TAG}.bats' ]; then \
-		bats -p test/alpine-${TAG}.bats; \
+	if [ -f "test/alpine-${TAG}.bats" ]; then \
+		bats test/alpine-$(TAG).bats; \
 	fi
 
 .built: . $(DEPS) $(TAG)/Dockerfile
