@@ -1,0 +1,23 @@
+# encoding: UTF-8
+---
+machine:
+  services:
+    - docker
+
+dependencies:
+  cache_directories:
+    - "~/deps"
+  pre:
+    - [[ ! -d ~/deps ]] || mkdir ~/deps
+    - cd deps && git clone https://github.com/sstephenson/bats.git
+    - sudo ~/deps/bats/install.sh /usr/local
+  override:
+    - docker info
+
+test:
+  override:
+    - make test
+
+deployment:
+  override:
+    - make push
