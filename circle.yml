@@ -1,6 +1,8 @@
 # encoding: UTF-8
 ---
 machine:
+  ruby:
+    version: 2.2.3
   environment:
     TAG: 3.2
   services:
