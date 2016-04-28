@@ -87,25 +87,26 @@ test: build
 		bats test/alpine-$(TAG).bats; \
 	fi
 
-.built: . $(DEPS) $(TAG)/Dockerfile
+.build_id: . $(DEPS)
 	$(call colorecho,"$(step) Building $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
-	echo "your deps are: ${DEPS}"
 	docker build -t "$(REGISTRY)/$(REPOSITORY):$(TAG)" -f "$(TAG)/Dockerfile" .
-	@docker inspect -f '{{.Id}}' $(REGISTRY)/$(REPOSITORY):$(TAG) > $(TAG)/.built
+	@docker inspect -f '{{.Id}}' $(REGISTRY)/$(REPOSITORY):$(TAG) > $(TAG)/.build_id
 ifeq "$(TAG)" "$(LATEST_TAG)"
 	docker tag "$(REGISTRY)/$(REPOSITORY):$(TAG)" "$(REGISTRY)/$(REPOSITORY):latest"
 endif
 
-build: .built
+build: $(TAG)/Dockerfile .build_id
 
 clean: stop
-	@$(RM) $(TAG)/.built
+	$(call colorecho,"$(step) Cleaning $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
+	@$(RM) $(TAG)/.build_id
 	-docker rmi "$(REPOSITORY):${TAG}"
 ifeq "$(TAG)" "$(LATEST_TAG)"
 	-docker rmi "$(REPOSITORY):latest"
 endif
 
 stop:
+	$(call colorecho,"$(step) Stoping $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
 	-docker stop "$(REPOSITORY):${TAG}"
 	-docker rm "$(REPOSITORY):${TAG}"
 ifeq "$(TAG)" "$(LATEST_TAG)"
@@ -116,13 +117,13 @@ endif
 # and use it for $(TAG). We prioritize Dockerfile.erb over Dockerfile if both
 # are present.
 $(TAG)/Dockerfile: Dockerfile.erb Dockerfile | $(TAG)
+	$(call colorecho,"$(step) Rendering $(REGISTRY)/$(REPOSITORY):$(TAG) Dockerfile $(step)")
 	set -e ;\
 	if [ -f 'Dockerfile.erb' ]; then \
 		erb "Dockerfile.erb" > "$(TAG)/Dockerfile"; \
 	else \
 		cp "Dockerfile" "$(TAG)/Dockerfile"; \
 	fi
-
 
 # Pseudo targets for Dockerfile and Dockerfile.erb. They don't technically
 # create anything, but each warn if the other file is missing (meaning both
@@ -140,4 +141,4 @@ $(TAG):
 DEPS = $(shell find $(TAG) -type f -print)
 
 .PHONY: push save test build clean stop
-.DEFAULT_GOAL := test
+.DEFAULT_GOAL := build
