@@ -66,7 +66,7 @@ step=-=-=-=-=-=-=-=-=-
 # endef
 
 # Define actual usable targets
-push: save
+push:
 	# $(call colorecho,"$(step) Release $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
 	set -e ; \
 	for registry in $(PUSH_REGISTRIES); do \
@@ -75,13 +75,6 @@ push: save
 			docker push "$${registry}/$(REPOSITORY):$${tag}"; \
 		done \
 	done
-
-save: test
-ifdef $(CI)
-	# $(call colorecho,"$(step) Generating $(REGISTRY)/$(REPOSITORY):$(TAG) artifact $(step)")
-	mkdir -p builds
-	docker save -o "builds/image-$(REPOSITORY)-$(TAG).tar" $(REGISTRY)/$(REPOSITORY):$(TAG)
-endif
 
 test: build
 	$(call colorecho,"$(step) Testing $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
@@ -97,8 +90,11 @@ test: build
 ifeq "$(TAG)" "$(LATEST_TAG)"
 	docker tag -f "$(REGISTRY)/$(REPOSITORY):$(TAG)" "$(REGISTRY)/$(REPOSITORY):latest"
 endif
+ifdef $(CIRCLE_ARTIFACTS)
+	docker save -o "$(CIRCLE_ARTIFACTS)/image-$(REPOSITORY)-$(TAG).tar" $(REGISTRY)/$(REPOSITORY):$(TAG)
+endif
 
-build: $(TAG)/Dockerfile .build
+build: .build
 
 clean: stop
 	# $(call colorecho,"$(step) Cleaning $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
