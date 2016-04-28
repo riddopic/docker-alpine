@@ -79,8 +79,8 @@ push: save
 save: test
 ifdef $(CI)
 	# $(call colorecho,"$(step) Generating $(REGISTRY)/$(REPOSITORY):$(TAG) artifact $(step)")
-	mkdir -p build
-	docker save -o "build/image-$(REPOSITORY)-$(TAG).tar" $(REGISTRY)/$(REPOSITORY):$(TAG)
+	mkdir -p builds
+	docker save -o "builds/image-$(REPOSITORY)-$(TAG).tar" $(REGISTRY)/$(REPOSITORY):$(TAG)
 endif
 
 test: build
