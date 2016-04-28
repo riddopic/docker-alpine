@@ -9,6 +9,7 @@ dependencies:
     - "~/deps"
   pre:
     - [[ ! -d ~/deps ]] || mkdir ~/deps
+    - if [[ ! -d ~/deps/ ]]; then mkdir -p ~/dep; fi
     - cd deps && git clone https://github.com/sstephenson/bats.git
     - sudo ~/deps/bats/install.sh /usr/local
   override:
