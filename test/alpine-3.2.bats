@@ -5,7 +5,7 @@ setup() {
 }
 
 @test "checking image size" {
-  MAX_SIZE=20000
+  MAX_SIZE=200000
   run docker run "bluebeluga/alpine:3.2" bash -c "[[ \"\$(du -d0 / 2>/dev/null | awk '{print \$1; print > \"/dev/stderr\"}')\" -lt \"$MAX_SIZE\" ]]"
   [ $status -eq 0 ]
 }
