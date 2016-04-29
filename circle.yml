@@ -24,6 +24,7 @@ dependencies:
     - git branch -avv
     - docker info
     - make build
+    - docker save -o "$CIRCLE_ARTIFACTS/image-$REPOSITORY-$TAG.tar" $REGISTRY/$REPOSITORY:$TAG
 
 test:
   override:
@@ -36,7 +37,3 @@ deployment:
     commands:
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - make push
-
-general:
-  artifacts:
-    - "builds"
