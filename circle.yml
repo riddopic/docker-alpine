@@ -5,6 +5,8 @@ machine:
     version: 2.2.3
   environment:
     TAG: 3.3
+    REGISTRY: docker.io
+    REPOSITORY: bluebeluga/alpine
   services:
     - docker
 
@@ -24,7 +26,7 @@ dependencies:
     - git branch -avv
     - docker info
     - make build
-    - docker save -o "$CIRCLE_ARTIFACTS/image-$REPOSITORY-$TAG.tar" $REGISTRY/$REPOSITORY:$TAG
+    - docker save -o "$CIRCLE_ARTIFACTS/image-$TAG.tar" $REGISTRY/$REPOSITORY:$TAG
 
 test:
   override:
