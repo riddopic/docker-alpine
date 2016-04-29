@@ -77,7 +77,7 @@ push:
 	done
 
 test: build
-	$(call colorecho,"$(step) Testing $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
+	# $(call colorecho,"$(step) Testing $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
 	set -e ;\
 	if [ -f "test/alpine-${TAG}.bats" ]; then \
 		bats test/alpine-$(TAG).bats; \
