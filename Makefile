@@ -62,6 +62,9 @@ push:
 		for tag in $(PUSH_TAGS); do \
 			docker tag -f "$(REGISTRY)/$(REPOSITORY):$(TAG)" "$${registry}/$(REPOSITORY):$${tag}"; \
 			docker push "$${registry}/$(REPOSITORY):$${tag}"; \
+			if [ "$${tag}" -eq "${LATEST_TAG}" ]; then \
+				docker tag -f "$(REGISTRY)/$(REPOSITORY):$${tag}" "$(REGISTRY)/$(REPOSITORY):latest"; \
+			fi; \
 		done \
 	done
 
@@ -71,16 +74,17 @@ test:
 		bats test/alpine-$(TAG).bats; \
 	fi
 
-.build: . $(TAG) $(DEPS)
+.build: . $(DEPS)
 	docker build -t "$(REGISTRY)/$(REPOSITORY):$(TAG)" -f "$(TAG)/Dockerfile" .
-	@docker inspect -f '{{.Id}}' $(REGISTRY)/$(REPOSITORY):$(TAG) > $(TAG)/.build
 ifeq "$(TAG)" "$(LATEST_TAG)"
 	docker tag -f "$(REGISTRY)/$(REPOSITORY):$(TAG)" "$(REGISTRY)/$(REPOSITORY):latest"
 endif
+	@docker inspect -f '{{.Id}}' $(REGISTRY)/$(REPOSITORY):$(TAG) > $(TAG)/.build
 ifdef $(CIRCLE_ARTIFACTS)
 	docker save -o "$(CIRCLE_ARTIFACTS)/image-$(REPOSITORY)-$(TAG).tar" $(REGISTRY)/$(REPOSITORY):$(TAG)
 endif
 
+build :
 build: $(TAG)/Dockerfile .build
 
 clean: stop

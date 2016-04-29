@@ -3,10 +3,6 @@
 machine:
   ruby:
     version: 2.2.3
-  environment:
-    TAG: 3.3
-    REGISTRY: docker.io
-    REPOSITORY: bluebeluga/alpine
   services:
     - docker
 
@@ -14,23 +10,17 @@ dependencies:
   cache_directories:
     - "~/deps"
   pre:
-    - if [[ ! -e $TAG ]]; then mkdir -p $TAG; fi
     - if [[ ! -e "builds" ]]; then mkdir -p "builds"; fi
     - if [[ ! -e ~/deps/bats_v0.4.0.tar.gz ]]; then mkdir -p ~/deps; curl -sSL -o ~/deps/bats_v0.4.0.tar.gz https://github.com/sstephenson/bats/archive/v0.4.0.tar.gz; fi
     - tar -xf ~/deps/bats_v0.4.0.tar.gz
     - sudo bats-0.4.0/install.sh /usr/local
   override:
-    - git status
-    - git branch
-    - git remote -v
-    - git branch -avv
     - docker info
     - make build
-    - docker save -o "$CIRCLE_ARTIFACTS/image-$TAG.tar" $REGISTRY/$REPOSITORY:$TAG
+    - docker images
 
 test:
   override:
-    - docker images
     - make test
 
 deployment:
