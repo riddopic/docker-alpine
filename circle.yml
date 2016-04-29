@@ -26,7 +26,5 @@ deployment:
   hub:
     branch: master
     commands:
-      - if [[ ! -e $HOME/.docker ]]; then mkdir -p $HOME/.docker; fi
-      - openssl aes-256-cbc -K "$DOCKER_CONF_KEY" -iv "$DOCKER_CONF_IV" -in .docker/config.json.enc -out $HOME/.docker/config.json -d
-      - docker login
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASSWORD
       - make push
