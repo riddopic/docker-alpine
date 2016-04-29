@@ -34,7 +34,7 @@ endif
 # depending on the tag being built. This is typically useful for things
 # constants like a point version, a sha1sum, etc. (note that $(TAG)/config.mk
 # is entirely optional).
--include $(TAG)/config.mk
+-include versions/$(TAG)/config.mk
 
 # By default, we'll push the tag we're building, and the 'latest' tag if said
 # tag is indeed the latest one. Set PUSH_TAGS in config.mk (or $(TAG)/config.mk)
@@ -62,29 +62,25 @@ push:
 		for tag in $(PUSH_TAGS); do \
 			docker tag -f "$(REGISTRY)/$(REPOSITORY):$(TAG)" "$${registry}/$(REPOSITORY):$${tag}"; \
 			docker push "$${registry}/$(REPOSITORY):$${tag}"; \
-			if [ "$${tag}" -eq "${LATEST_TAG}" ]; then \
-				docker tag -f "$(REGISTRY)/$(REPOSITORY):$${tag}" "$(REGISTRY)/$(REPOSITORY):latest"; \
-			fi; \
 		done \
 	done
 
 test:
 	set -e ;\
-	if [ -f "test/alpine-${TAG}.bats" ]; then \
+	if [ -f "test/alpine-$(TAG).bats" ]; then \
 		bats test/alpine-$(TAG).bats; \
 	fi
 
 .build: . $(DEPS)
-	docker build -t "$(REGISTRY)/$(REPOSITORY):$(TAG)" -f "$(TAG)/Dockerfile" .
+	docker build -t "$(REGISTRY)/$(REPOSITORY):$(TAG)" -f "versions/$(TAG)/Dockerfile" .
 ifeq "$(TAG)" "$(LATEST_TAG)"
 	docker tag -f "$(REGISTRY)/$(REPOSITORY):$(TAG)" "$(REGISTRY)/$(REPOSITORY):latest"
 endif
-	@docker inspect -f '{{.Id}}' $(REGISTRY)/$(REPOSITORY):$(TAG) > $(TAG)/.build
+	@docker inspect -f '{{.Id}}' $(REGISTRY)/$(REPOSITORY):$(TAG) > versions/$(TAG)/.build
 ifdef $(CIRCLE_ARTIFACTS)
 	docker save -o "$(CIRCLE_ARTIFACTS)/image-$(REPOSITORY)-$(TAG).tar" $(REGISTRY)/$(REPOSITORY):$(TAG)
 endif
 
-build :
 build: $(TAG)/Dockerfile .build
 
 clean: stop
@@ -108,9 +104,9 @@ $(TAG)/Dockerfile: Dockerfile.erb Dockerfile | $(TAG)
 	# $(call colorecho,"$(step) Rendering $(REGISTRY)/$(REPOSITORY):$(TAG) Dockerfile $(step)")
 	set -e ;\
 	if [ -f 'Dockerfile.erb' ]; then \
-		erb "Dockerfile.erb" > "$(TAG)/Dockerfile"; \
+		erb "Dockerfile.erb" > "versions/$(TAG)/Dockerfile"; \
 	else \
-		cp "Dockerfile" "$(TAG)/Dockerfile"; \
+		cp "Dockerfile" "versions/$(TAG)/Dockerfile"; \
 	fi
 
 # Pseudo targets for Dockerfile and Dockerfile.erb. They don't technically
@@ -123,10 +119,10 @@ Dockerfile:
 	@ if [ ! -f 'Dockerfile.erb' ]; then echo "You must create one of Dockerfile.erb or Dockerfile"; exit 1; fi
 
 $(TAG):
-	mkdir -p "$(TAG)"
+	mkdir -p "versions/$(TAG)"
 
 # list of dependancies in the build context
-DEPS = $(shell find $(TAG) -type f -print)
+DEPS = $(shell find versions/$(TAG) -type f -print)
 
 .PHONY: push save test build clean stop
 .DEFAULT_GOAL := build

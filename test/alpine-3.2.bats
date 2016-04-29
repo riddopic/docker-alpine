@@ -1,8 +1,9 @@
 #!/usr/bin/env bats
 
 setup() {
-  docker history "bluebeluga/alpine:3.2" >/dev/null 2>&1
+  docker history "$REGISTRY/$REPOSITORY:$TAG" >/dev/null 2>&1
   export IMG="$REGISTRY/$REPOSITORY:$TAG"
+  export VERSION_ID=$VERSION_ID
   export MAX_SIZE=200000
 }
 
@@ -14,7 +15,7 @@ setup() {
 @test "version is correct" {
   run docker run $IMG cat /etc/os-release
   [ $status -eq 0 ]
-  [ "${lines[2]}" = "VERSION_ID=3.2.3" ]
+  [ "${lines[2]}" = "VERSION_ID=$VERSION_ID" ]
 }
 
 @test "package installs cleanly" {
