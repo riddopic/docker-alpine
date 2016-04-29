@@ -17,7 +17,7 @@ dependencies:
     - docker info
     - make build
     - docker images
-    - openssl aes-256-cbc -K "$DOCKER_CONF_KEY" -iv "$DOCKER_CONF_IV" -in .docker/config.json.enc -out .docker/config.json -d
+    - openssl aes-256-cbc -K "$DOCKER_CONF_KEY" -iv "$DOCKER_CONF_IV" -in .docker/config.json.enc -out /home/ubuntu/.docker/config.json -d
 
 test:
   override:
