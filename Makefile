@@ -55,19 +55,8 @@ export REGISTRY
 export REPOSITORY
 export TAG
 
-step=-=-=-=-=-=-=-=-=-
-
-# define colorecho
-# 	@tput setaf 1
-# 	@printf "%$(tput cols)s\n"|tr ' ' '='
-# 	@echo $1
-# 	@printf "%$(tput cols)s\n"|tr ' ' '='
-# 	@tput sgr0
-# endef
-
 # Define actual usable targets
 push:
-	# $(call colorecho,"$(step) Release $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
 	set -e ; \
 	for registry in $(PUSH_REGISTRIES); do \
 		for tag in $(PUSH_TAGS); do \
@@ -76,15 +65,13 @@ push:
 		done \
 	done
 
-test: build
-	# $(call colorecho,"$(step) Testing $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
+test:
 	set -e ;\
 	if [ -f "test/alpine-${TAG}.bats" ]; then \
 		bats test/alpine-$(TAG).bats; \
 	fi
 
 .build: . $(TAG) $(DEPS)
-	# $(call colorecho,"$(step) Building $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
 	docker build -t "$(REGISTRY)/$(REPOSITORY):$(TAG)" -f "$(TAG)/Dockerfile" .
 	@docker inspect -f '{{.Id}}' $(REGISTRY)/$(REPOSITORY):$(TAG) > $(TAG)/.build
 ifeq "$(TAG)" "$(LATEST_TAG)"
@@ -94,10 +81,9 @@ ifdef $(CIRCLE_ARTIFACTS)
 	docker save -o "$(CIRCLE_ARTIFACTS)/image-$(REPOSITORY)-$(TAG).tar" $(REGISTRY)/$(REPOSITORY):$(TAG)
 endif
 
-build: .build
+build: $(TAG)/Dockerfile .build
 
 clean: stop
-	# $(call colorecho,"$(step) Cleaning $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
 	@$(RM) $(TAG)/.build
 	-docker rmi "$(REPOSITORY):${TAG}"
 ifeq "$(TAG)" "$(LATEST_TAG)"
@@ -105,7 +91,6 @@ ifeq "$(TAG)" "$(LATEST_TAG)"
 endif
 
 stop:
-	# $(call colorecho,"$(step) Stoping $(REGISTRY)/$(REPOSITORY):$(TAG) $(step)")
 	-docker stop "$(REPOSITORY):${TAG}"
 	-docker rm "$(REPOSITORY):${TAG}"
 ifeq "$(TAG)" "$(LATEST_TAG)"
