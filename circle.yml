@@ -4,7 +4,7 @@ machine:
   ruby:
     version: 2.2.3
   environment:
-    TAG: 3.2
+    TAG: 3.3
   services:
     - docker
 
