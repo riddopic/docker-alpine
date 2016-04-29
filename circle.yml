@@ -27,6 +27,7 @@ dependencies:
 test:
   override:
     - docker images
+    - make test
 
 deployment:
   hub:
